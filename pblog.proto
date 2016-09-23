@@ -1,0 +1,361 @@
+/*
+ * Copyright 2014 Google Inc. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+// Event protobuf definitions.
+import "nanopb.proto";
+
+package pblog;
+
+option (nanopb_fileopt).long_names = false;
+option (nanopb_fileopt).packed_struct = true;
+option (nanopb_fileopt).enum_to_string = true;
+
+// Note: More common events should use lower numbers as they encode to smaller
+// values.
+enum event_type {
+  TYPE_UNKNOWN = 0;
+  // System powered on.
+  TYPE_POWER_ON = 1;
+  // System experienced a power failure, this could be logged on power on
+  // after a power failure.
+  TYPE_POWER_FAILURE = 2;
+  // See "reset" / PbLogEventGenericReset.
+  TYPE_RESET = 3;
+  // Operating system started to boot the system.
+  TYPE_BOOT_UP = 4;
+  // See "shutdown" / PbLogEventGenericShutdown.
+  TYPE_SHUTDOWN = 5;
+  // See "log_cleared" / PbLogEventGenericLogCleared.
+  TYPE_LOG_CLEARED = 6;
+  // Protocol buffer event log is disabled.
+  TYPE_LOG_DISABLED = 7;
+  // Event that is used to indicate a cleared log area without clearing the
+  // entire area.  Any events before the last checkpoint can optionally be
+  // ignored by tools that parse the log.
+  TYPE_LOG_CHECKPOINT = 8;
+  // See "cleared_nvram_location" / PbLogEventGenericNvRamLocation.
+  TYPE_NVRAM_CLEARED = 9;
+  // See "nvram_error" / PbLogEventGenericNvRamError.
+  TYPE_NVRAM_ERROR = 10;
+  // See "watchdog_timeout" / PbLogEventGenericWatchdogTimeout.
+  TYPE_WATCHDOG_TIMEOUT = 11;
+  // System firmware didn't find media to boot from.
+  TYPE_BOOT_MEDIA_NOT_FOUND = 12;
+  // See "cpu_error" / PbLogEventGenericCpuError.
+  TYPE_CPU_ERROR = 13;
+  // See "memory_configuration_error" /
+  // PbLogEventGenericMemoryConfigurationError.
+  TYPE_MEMORY_CONFIGURATION_ERROR = 14;
+  // See "memory_runtime_error" / PbLogEventGenericMemoryRuntimeError.
+  TYPE_MEMORY_RUNTIME_ERROR = 15;
+  // See "pci_error" / PbLogEventGenericPciError.
+  TYPE_PCI_ERROR = 16;
+  // See "pcie_aer_error" / PbLogEventGenericPcieAerError.
+  TYPE_PCIE_AER_ERROR = 19;
+  // See "thermal_trip" / PbLogEventGenericThermalTrip.
+  TYPE_THERMAL_TRIP = 20;
+  // See "coherent_fabric_error" / PbLogEventGenericCoherentFabricError.
+  TYPE_COHERENT_FABRIC_ERROR = 21;
+  // See "filesystem_check" / PbLogEventGenericFilesystemCheck.
+  TYPE_FILESYSTEM_CHECK = 22;
+  // See "component_changed" / PbLogEventGenericComponentChanged.
+  TYPE_COMPONENT_CHANGED = 23;
+  // See "system_firmware_version_changed" /
+  // PbLogEventGenericSystemFirmwareVersionChanged.
+  TYPE_SYSTEM_FIRMWARE_VERSION_CHANGED = 24;
+  // See "system_firmware_validation_error" /
+  // PbLogEventGenericSystemFirmwareValidationError.
+  TYPE_SYSTEM_FIRMWARE_VALIDATION_ERROR = 25;
+  // See "system_firmware_update_error" /
+  // PbLogEventGenericSystemFirmwareUpdateError.
+  TYPE_SYSTEM_FIRMWARE_UPDATE_ERROR = 26;
+  // See "system_firmware_configuration_changed" /
+  // PbLogEventGenericSystemFirmwareConfigurationChanged.
+  TYPE_SYSTEM_FIRMWARE_CONFIGURATION_CHANGED = 27;
+  // See "x86_machine_check" / PbLogEventX86MachineCheck.
+  TYPE_X86_CPU_MACHINE_CHECK = 28;
+  // See PbLogEventAcpiSleepStateChange.
+  TYPE_ACPI_SLEEP_STATE_CHANGED = 29;
+  // See OpenpowerFirmwareEvent.
+  TYPE_OPENPOWER_FIRMWARE_EVENT = 1000;
+}
+
+// Any event-specific descriptive data, expressed in key-value strings.
+message EventData {
+  required string key = 1;
+  required string value = 2;
+}
+
+message DeviceLocator {
+  // Integer identifier of device, e.g. DIMM number, CPU socket, PCI slot.
+  optional int64 id = 1;
+  // Freeform text identifier of device.
+  optional string path = 2;
+}
+
+message PbLogEventGenericShutdown {
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    // System shut down cleanly.
+    TYPE_CLEAN = 1;
+    // OS failed to shutdown cleanly.
+    TYPE_DIE = 2;
+    // Linux kernel panic.
+    TYPE_PANIC = 3;
+    // Linux kernel oops.
+    TYPE_OOPS = 4;
+    // Exception in an exception handler.
+    TYPE_TRIPLE_FAULT = 5;
+  }
+  optional Type type = 1;
+}
+
+// System reset.
+message PbLogEventGenericReset {
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    TYPE_BUTTON = 1;
+    TYPE_SYSTEM_FIRMWARE = 2;
+    TYPE_OS = 3;
+  }
+  // The cause of the reset.
+  optional Type type = 1;
+}
+
+// Memory error that occurred during memory configuration.
+message PbLogEventGenericMemoryConfigurationError {
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    // Memory modules disabled due to a miscellaneous error (Memory BIST etc.)
+    TYPE_DISABLED_DUE_TO_ERROR = 1;
+    // Memory modules disabled due to an invalid memory population or due to
+    // modules that aren't accessible due to an error on modules on the same
+    // channel.
+    TYPE_DISABLED_DUE_TO_CONFIGURATION = 2;
+    // Memory modules which failed training.
+    TYPE_TRAINING_FAILURE = 3;
+    // Memory modules which failed coarse delay calibration.
+    TYPE_COARSE_DELAY_FAILURE = 4;
+    // Memory modules which failed software based memory test.
+    TYPE_MEMORY_TEST_FAILURE = 5;
+    // Memory modules with SPD read failure.
+    TYPE_SPD_FAILURE = 6;
+  }
+  optional Type type = 1;
+  // List of memory module identifiers affected by the error
+  // specified by the "type" field.
+  repeated DeviceLocator device = 2;
+}
+
+// Memory error that occurred during memory operation.
+message PbLogEventGenericMemoryRuntimeError {
+  enum Type {
+    TYPE_UNKNOWN = 0;
+    TYPE_CORRECTABLE = 1;
+    TYPE_UNCORRECTABLE = 2;
+  }
+  // Type of error.
+  optional Type type = 1;
+  // Board specific identifier for the memory module that experienced an error.
+  // This could be a DIMM slot number as described on the board's silkscreen.
+  optional DeviceLocator device = 2;
+  // Detailed memory location which experienced the error.
+  optional uint64 physical_address = 3;
+  optional uint32 rank = 4;
+  optional uint32 bank = 5;
+  optional uint32 row = 6;
+  optional uint32 column = 7;
+}
+
+message OpenpowerFirmwareEvent {
+  enum Source {
+    SOURCE_ERRL = 0x0100;
+    SOURCE_DEVFW = 0x0200;
+    SOURCE_SCOM = 0x0300;
+    SOURCE_XSCOM = 0x0400;
+    SOURCE_INITSVC = 0x0500;
+    SOURCE_PNOR = 0x0600;
+    SOURCE_I2C = 0x0700;
+    SOURCE_VFS = 0x0800;
+    SOURCE_HWPF = 0x0900;
+    SOURCE_FSI = 0x0A00;
+    SOURCE_TARG = 0x0B00;
+    SOURCE_HWAS = 0x0C00;
+    SOURCE_FSISCOM = 0x0D00;
+    SOURCE_EEPROM = 0x0E00;
+    SOURCE_INTR = 0x0F00;
+    SOURCE_TOD = 0x1000;
+    SOURCE_MBOX = 0x1100;
+    SOURCE_DUMP = 0x1200;
+    SOURCE_CONSOLE = 0x1300;
+    SOURCE_MDIA = 0x1400;
+    SOURCE_TRACE = 0x1500;
+    SOURCE_UTIL = 0x1600;
+    SOURCE_ISTEP = 0x1700;
+    SOURCE_ATTN = 0x1800;
+    SOURCE_SCAN = 0x1900;
+    SOURCE_RUNTIME = 0x1A00;
+    SOURCE_KERNEL = 0x1B00;
+    SOURCE_IBSCOM = 0x1C00;
+    SOURCE_VPD = 0x1D00;
+    SOURCE_SECURE = 0x1E00;
+    SOURCE_IPC = 0x1F00;
+    SOURCE_HSVC = 0x2000;
+    SOURCE_DEVTREE = 0x2100;
+    SOURCE_SBE = 0x2200;
+    SOURCE_GPIO = 0x2300;
+    SOURCE_LPC = 0x2400;
+    SOURCE_IPMI = 0x2500;
+    SOURCE_HTMGT = 0x2600;
+    SOURCE_OCCC = 0x2A00;
+    SOURCE_HBTRACE = 0x3100;
+    SOURCE_PRDF = 0xE500;
+
+    SOURCE_EC = 0x4100;
+
+    /* Sapphire/Skiboot components */
+    SOURCE_OPAL_CODEUPDATE = 0x4355; /* CU */
+    SOURCE_OPAL_CONSOLE = 0x434E; /* CN */
+    SOURCE_OPAL_CEC = 0x4345; /* CE */
+    SOURCE_OPAL_CHIP = 0x4348; /* CH */
+    SOURCE_OPAL_ELOG = 0x454C; /* EL */
+    SOURCE_OPAL_NVRAM = 0x4E56; /* NV */
+    SOURCE_OPAL_RTC = 0x5254; /* RT */
+    SOURCE_OPAL_SURVEILLANCE = 0x5355; /* SU */
+    SOURCE_OPAL_SYSPARAM = 0x5350; /* SP */
+    SOURCE_OPAL_LPC = 0x4C50; /* LP */
+    SOURCE_OPAL_UART = 0x5541; /* UA */
+    SOURCE_OPAL_OCC = 0x4F43; /* OC */
+    SOURCE_OPAL_OP_PANEL = 0x4F50; /* OP */
+    SOURCE_OPAL_PHB3 = 0x5048; /* PH */
+    SOURCE_OPAL_PSI = 0x5053; /* PS */
+    SOURCE_OPAL_VPD = 0x5650; /* VP */
+    SOURCE_OPAL_XSCOM = 0x5853; /* XS */
+    SOURCE_OPAL_PCI = 0x5043; /* PC */
+    SOURCE_OPAL_MISC = 0x4D49; /* MI */
+    SOURCE_OPAL_ATTN = 0x4154; /* AT */
+    SOURCE_OPAL_MEM_ERR = 0x4D45; /* ME */
+    SOURCE_OPAL_CENTAUR = 0x4354; /* CT */
+    SOURCE_OPAL_MFSI = 0x4D46; /* MF */
+    SOURCE_OPAL_DUMP = 0x4455; /* DU */
+    SOURCE_OPAL_LED = 0x4C45; /* LE */
+    SOURCE_OPAL_SENSOR = 0x5345; /* SE */
+    SOURCE_OPAL_SLW = 0x534C; /* SL */
+    SOURCE_OPAL_FSP = 0x4650; /* FP */
+    SOURCE_OPAL_I2C = 0x4943; /* IC */
+  }
+  enum EpubSubsystem {
+    // Processor subsystem
+    EPUB_PROCESSOR_SUBSYS           = 0x10;
+    EPUB_PROCESSOR_FRU              = 0x11;
+    EPUB_PROCESSOR_CHIP_CACHE       = 0x12;
+    EPUB_PROCESSOR_UNIT             = 0x13;
+    EPUB_PROCESSOR_BUS_CTL          = 0x14;
+
+    // Memory subsystem
+    EPUB_MEMORY_SUBSYS              = 0x20;
+    EPUB_MEMORY_CONTROLLER          = 0x21;
+    EPUB_MEMORY_BUS                 = 0x22;
+    EPUB_MEMORY_DIMM                = 0x23;
+    EPUB_MEMORY_FRU                 = 0x24;
+    EPUB_EXTERNAL_CACHE             = 0x25;
+
+    EPUB_IO_SUBSYSTEM               = 0x30;
+    EPUB_IO_DEVICES                 = 0x40;
+
+    // CEC Hardware
+    EPUB_CEC_HDW_SUBSYS             = 0x50;
+    EPUB_CEC_HDW_VPD_INTF           = 0x55;
+    EPUB_CEC_HDW_I2C_DEVS           = 0x56;
+    EPUB_CEC_HDW_CHIP_INTF          = 0x57; // includes JTAG, FSI, etc.
+    EPUB_CEC_HDW_CLK_CTL            = 0x58;
+    EPUB_CEC_HDW_TOD_HDW            = 0x5A;
+    EPUB_CEC_HDW_SP_PHYP_INTF       = 0x5C;
+
+    // Power/Cooling subsystem
+    EPUB_POWER_SUBSYS               = 0x60;
+
+    // Others
+    EPUB_MISC_SUBSYS                = 0x70;
+    EPUB_MISC_TEST_TOOL             = 0x72;
+    EPUB_MISC_MULTIPLE_SUBSYS       = 0x74;
+    EPUB_MISC_UNKNOWN               = 0x75;
+    EPUB_MISC_INFORMATIONAL         = 0x76;
+    EPUB_SURVEILLANCE_ERR           = 0x7A;
+
+    // Platform Firmware
+    EPUB_FIRMWARE_SUBSYS            = 0x80;
+    EPUB_FIRMWARE_SP                = 0x81;
+    EPUB_FIRMWARE_PHYP              = 0x82;
+
+    EPUB_FIRMWARE_HOSTBOOT          = 0x8A;
+    EPUB_FIRMWARE_OPAL              = 0x8B;
+    EPUB_UNKNOWN                    = 0xFF;
+  }
+  optional Source source = 1;
+
+  optional EpubSubsystem epub_subsystem = 2;
+
+  optional string description = 3;
+
+  optional uint32 module_id = 4;
+  optional string module_name = 5;
+
+  optional uint32 reason_code = 6;
+  optional string reason_string = 7;
+
+  message UserData {
+    required uint64 data = 1;
+    required string description = 2;
+  }
+  repeated UserData user_data = 8 [(nanopb).max_count = 3];
+
+  repeated DeviceLocator target = 9 [(nanopb).max_count = 4];
+}
+
+message Event {
+  // Global list of vendors with events specific for their systems.
+  // Modifications to this enumeration should be shared with other
+  // vendors so that generic event log parsing tools know how to handle vendor
+  // specific events.
+  enum Vendor {
+    VENDOR_GENERIC = 0;
+    VENDOR_GOOGLE = 1;
+    VENDOR_IBM = 2;
+  }
+  // Field used to determine which specialized event protocol buffer to use
+  // to parse the event.
+  required Vendor vendor = 1 [default = VENDOR_GENERIC];
+  // Generic type of event.
+  optional event_type type = 2 [default = TYPE_UNKNOWN];
+  // Time of the event in seconds since unix epoch (UTC).
+  optional fixed32 timestamp = 3;
+  // Count of the boot attempt.  This will typically increase after each
+  // system reset / power cycle.
+  optional uint32 boot_number = 4;
+  // Generic key / value strings that are associated with the event.
+  repeated EventData data = 5 [(nanopb).max_count = 5];
+  // One of the following messages may be set.
+  optional PbLogEventGenericShutdown generic_shutdown = 100;
+  optional PbLogEventGenericReset generic_reset = 101;
+  optional PbLogEventGenericMemoryConfigurationError
+      generic_memory_configuration_error = 102;
+  optional PbLogEventGenericMemoryRuntimeError
+      generic_memory_runtime_error = 103;
+  optional OpenpowerFirmwareEvent
+      openpower_firmware_event = 400;
+}
