@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-#include "record.h"
-
 #include <string.h>
 
-#include "common.h"
-#include "flash.h"
+#include <pblog/common.h>
+#include <pblog/flash.h>
+#include <pblog/record.h>
 
 unsigned char record_checksum(const void *buf, size_t len) {
   unsigned char csum = 0;

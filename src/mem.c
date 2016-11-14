@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "mem.h"
-
 #include <stdlib.h>
 #include <string.h>
+
+#include <pblog/mem.h>
 
 static int mem_read(pblog_flash_ops *ops, int offset, size_t len, void *data) {
   unsigned char *addr = ops->priv;

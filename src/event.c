@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-#include "event.h"
-
 #include <limits.h>
 #include <string.h>
 
-#include "common.h"
-#include "pblog.pb.h"
-
-#include "third_party/nanopb/pb.h"
-#include "third_party/nanopb/pb_decode.h"
-#include "third_party/nanopb/pb_encode.h"
+#include <nanopb/pb.h>
+#include <nanopb/pb_decode.h>
+#include <nanopb/pb_encode.h>
+#include <pblog/common.h>
+#include <pblog/event.h>
+#include <pblog/pblog.pb.h>
 
 static bool string_encoder(pb_ostream_t *stream,
                            const pb_field_t *field,

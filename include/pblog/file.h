@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-/* In-memory operations support */
+/* File reading emulation for flash operations */
 
-#ifndef _PBLOG_MEM_H_
-#define _PBLOG_MEM_H_
+#ifndef _PBLOG_FILE_H_
+#define _PBLOG_FILE_H_
 
 #include <stddef.h>
 #include <stdint.h>
 
-#include "flash.h"
+#include <pblog/flash.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern struct pblog_flash_ops pblog_mem_ops;
+extern struct pblog_flash_ops pblog_file_ops;
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_MEM_H_ */
+#endif  /* _PBLOG_FILE_H_ */

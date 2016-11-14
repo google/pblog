@@ -21,9 +21,9 @@
 
 #include <stdlib.h>
 
-#include "common.h"
-#include "event.h"
-#include "pblog.pb.h"
+#include <pblog/common.h>
+#include <pblog/event.h>
+#include <pblog/pblog.pb.h>
 
 #ifdef __cplusplus
 extern "C" {

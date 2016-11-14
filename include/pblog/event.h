@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-#include "pblog.pb.h"
+#include <pblog/pblog.pb.h>
 
 #ifdef __cplusplus
 extern "C" {

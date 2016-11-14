@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "file.h"
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
@@ -23,6 +21,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+
+#include <pblog/file.h>
 
 static int file_read(pblog_flash_ops *ops, int offset, size_t len, void *data) {
   const char *filename = ops->priv;

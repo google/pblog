@@ -19,8 +19,8 @@
 #ifndef _PBLOG_RECORD_H_
 #define _PBLOG_RECORD_H_
 
-#include "stdlib.h"
 #include <stdint.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C" {

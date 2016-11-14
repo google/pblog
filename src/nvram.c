@@ -16,14 +16,13 @@
 
 /* NVRAM basic support */
 
-#include "nvram.h"
-
-#include "common.h"
-#include "flash.h"
-#include "record.h"
-
 #include <string.h>
 #include <stdlib.h>
+
+#include <pblog/common.h>
+#include <pblog/flash.h>
+#include <pblog/nvram.h>
+#include <pblog/record.h>
 
 #define MAX_NVRAM_ENTRIES 1024
 #define MAX_NVRAM_ENTRY_SIZE 1024
@@ -306,10 +305,11 @@ void pblog_nvram_free(struct nvram *nvram) {
 }
 
 #ifdef NVRAM_CMDLINE_APP
-#include "file.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include <pblog/file.h>
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {

@@ -16,16 +16,15 @@
 
 /* Base support for reading/writing of protobuf log events */
 
-#include "pblog.h"
-
-#include "common.h"
-#include "event.h"
-#include "flash.h"
-#include "mem.h"
-#include "record.h"
-
 #include <string.h>
 #include <stdlib.h>
+
+#include <pblog/common.h>
+#include <pblog/event.h>
+#include <pblog/flash.h>
+#include <pblog/mem.h>
+#include <pblog/pblog.h>
+#include <pblog/record.h>
 
 struct pblog_metadata {
   struct record_intf *flash_ri;
