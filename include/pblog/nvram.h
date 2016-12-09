@@ -28,7 +28,7 @@ extern "C" {
 struct record_intf;
 
 struct nvram_entry {
-  char *key;  // must be a C style nul-terminated string
+  char *key;   // must be a C style nul-terminated string
   char *data;  // arbitrary bytes not necessarily nul-terminated
   size_t data_len;
 };
@@ -85,9 +85,8 @@ void nvram_list_free(struct nvram_entry **entries);
 
 // Finds a particular key in a list of entries and returns a pointer to it.
 // Returns NULL if the key is not found.
-const struct nvram_entry *nvram_list_find(
-  const struct nvram_entry *entries,
-  const char *key);
+const struct nvram_entry *nvram_list_find(const struct nvram_entry *entries,
+                                          const char *key);
 
 void pblog_nvram_init(struct nvram *nvram, struct record_intf *ri);
 void pblog_nvram_free(struct nvram *nvram);
@@ -96,4 +95,4 @@ void pblog_nvram_free(struct nvram *nvram);
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_NVRAM_H_ */
+#endif /* _PBLOG_NVRAM_H_ */

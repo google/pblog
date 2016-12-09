@@ -42,8 +42,8 @@ static int mem_erase(pblog_flash_ops *ops, int offset, size_t len) {
 }
 
 struct pblog_flash_ops pblog_mem_ops = {
-  .read = &mem_read,
-  .write = &mem_write,
-  .erase = &mem_erase,
-  .priv = NULL  /* set to memory address base upon instantiation */
+    .read = &mem_read,
+    .write = &mem_write,
+    .erase = &mem_erase,
+    .priv = NULL /* set to memory address base upon instantiation */
 };

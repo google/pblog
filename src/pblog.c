@@ -16,8 +16,8 @@
 
 /* Base support for reading/writing of protobuf log events */
 
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <pblog/common.h>
 #include <pblog/event.h>
@@ -73,7 +73,7 @@ static int write_event(struct pblog *pblog, pblog_Event *event) {
 }
 
 static int write_clear_event(struct pblog *pblog) {
-  pblog_Event *event = (pblog_Event*) malloc(sizeof(pblog_Event));
+  pblog_Event *event = (pblog_Event *)malloc(sizeof(pblog_Event));
   int ret;
 
   if (event == NULL) {
@@ -117,7 +117,8 @@ static int log_compact(struct pblog *pblog) {
   return write_clear_event(pblog);
 }
 
-static enum pblog_status pblog_add_event(struct pblog *pblog, pblog_Event *event) {
+static enum pblog_status pblog_add_event(struct pblog *pblog,
+                                         pblog_Event *event) {
   struct pblog_metadata *meta = pblog->priv;
   int rc = write_event(pblog, event);
 
@@ -136,8 +137,7 @@ static enum pblog_status pblog_add_event(struct pblog *pblog, pblog_Event *event
 
 static enum pblog_status pblog_for_each_event(struct pblog *pblog,
                                               pblog_event_cb callback,
-                                              pblog_Event *event,
-                                              void *priv) {
+                                              pblog_Event *event, void *priv) {
   struct pblog_metadata *meta = pblog->priv;
   // Prefer reading from the memory-based log if available.
   struct record_intf *ri = meta->mem_ri ? meta->mem_ri : meta->flash_ri;
@@ -179,9 +179,8 @@ static enum pblog_status pblog_for_each_event_internal(struct pblog *pblog,
                                                        pblog_event_cb callback,
                                                        void *priv) {
   enum pblog_status status;
-  pblog_Event *event = (pblog_Event*) malloc(sizeof(pblog_Event));
-  if (event == NULL)
-      return PBLOG_ERR_NO_SPACE;
+  pblog_Event *event = (pblog_Event *)malloc(sizeof(pblog_Event));
+  if (event == NULL) return PBLOG_ERR_NO_SPACE;
   event_init(event);
   status = pblog_for_each_event(pblog, callback, event, priv);
   event_free(event);
@@ -248,7 +247,7 @@ static struct record_intf *pblog_init_memlog(void *addr, size_t size,
   pblog_mem_ops.priv = addr;
   mem_region.offset = 0;
   mem_region.size = size;
-  mem_ri = (struct record_intf*)malloc(sizeof(struct record_intf));
+  mem_ri = (struct record_intf *)malloc(sizeof(struct record_intf));
   record_intf_init(mem_ri, &mem_region, 1, &pblog_mem_ops);
 
   // Initialize the contents of the mem log with the flash log.
@@ -265,8 +264,7 @@ static enum pblog_status count_events_callback(int valid,
                                                void *priv) {
   int *count = priv;
   (void)event;
-  if (valid)
-    (*count)++;
+  if (valid) (*count)++;
   return PBLOG_SUCCESS;
 }
 
@@ -290,10 +288,8 @@ static int pblog_first_time_init(struct pblog *pblog) {
   return count;
 }
 
-int pblog_init(struct pblog *pblog,
-               int allow_clear_on_add,
-               struct record_intf *flash_ri,
-               void *mem_addr, size_t mem_size) {
+int pblog_init(struct pblog *pblog, int allow_clear_on_add,
+               struct record_intf *flash_ri, void *mem_addr, size_t mem_size) {
   struct pblog_metadata *meta = malloc(sizeof(struct pblog_metadata));
   if (meta == NULL) {
     return PBLOG_ERR_NO_SPACE;

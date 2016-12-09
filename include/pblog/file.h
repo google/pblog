@@ -34,4 +34,4 @@ extern struct pblog_flash_ops pblog_file_ops;
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_FILE_H_ */
+#endif /* _PBLOG_FILE_H_ */

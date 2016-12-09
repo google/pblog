@@ -16,8 +16,8 @@
 
 /* NVRAM basic support */
 
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <pblog/common.h>
 #include <pblog/flash.h>
@@ -46,12 +46,13 @@ static int nvram_addentry(struct nvram *nvram, const char *key,
   return rc < 0 ? rc : 0;
 }
 
-static int nvram_parse_entry(const char *entry, size_t len,
-                             char **key, char **data) {
+static int nvram_parse_entry(const char *entry, size_t len, char **key,
+                             char **data) {
   int key_len, data_len;
-  for (key_len = 0; key_len < len &&
-      memcmp(&entry[key_len], &kDelimiter, sizeof(kDelimiter)) != 0;
-      ++key_len) {
+  for (key_len = 0;
+       key_len < len &&
+       memcmp(&entry[key_len], &kDelimiter, sizeof(kDelimiter)) != 0;
+       ++key_len) {
   }
   *key = malloc(key_len + sizeof('\0'));
   memcpy(*key, entry, key_len);
@@ -110,10 +111,9 @@ static int nvram_enumerate(struct nvram *nvram, struct nvram_entry **entries) {
       array_size = num_entries * 2 + 1;  // grow exponentially for efficiency
       *entries = realloc(*entries, array_size * sizeof(struct nvram_entry));
     }
-    data_len = nvram_parse_entry(entry_buf,
-                                 len,
-                                 &(*entries)[num_entries - 1].key,
-                                 &(*entries)[num_entries - 1].data);
+    data_len =
+        nvram_parse_entry(entry_buf, len, &(*entries)[num_entries - 1].key,
+                          &(*entries)[num_entries - 1].data);
     (*entries)[num_entries - 1].data_len = data_len;
   } while (1);
 
@@ -215,7 +215,7 @@ static int nvram_compact(struct nvram *nvram, const char *new_key) {
     }
   }
 
- out:
+out:
   // Free our allocated entries.
   nvram_list_free(&entries);
 
@@ -246,16 +246,15 @@ static int nvram_lookup(struct nvram *nvram, const char *key, char *data,
     size_t entry_len = sizeof(entry_buf);
     struct nvram_entry entry;
     int next_offset;
-    int rc = nvram->ri->read_record(nvram->ri, offset, &next_offset,
-                                    &entry_len, entry_buf);
+    int rc = nvram->ri->read_record(nvram->ri, offset, &next_offset, &entry_len,
+                                    entry_buf);
     if (rc < 0 || next_offset == 0) {
       break;
     }
     offset += next_offset;
 
     data_len = nvram_parse_entry(entry_buf, entry_len, &entry.key, &entry.data);
-    if (data_len > 0 &&
-        data_len <= (max_data_len - sizeof('\0')) &&
+    if (data_len > 0 && data_len <= (max_data_len - sizeof('\0')) &&
         strcmp(key, entry.key) == 0) {
       memcpy(data, entry.data, data_len);
     }
@@ -300,9 +299,7 @@ void pblog_nvram_init(struct nvram *nvram, struct record_intf *ri) {
   nvram->clear = nvram_clear;
 }
 
-void pblog_nvram_free(struct nvram *nvram) {
-  record_intf_free(nvram->ri);
-}
+void pblog_nvram_free(struct nvram *nvram) { record_intf_free(nvram->ri); }
 
 #ifdef NVRAM_CMDLINE_APP
 #include <stdio.h>
@@ -331,7 +328,7 @@ int main(int argc, char *argv[]) {
 
   int rc;
 
-  pblog_file_ops.priv = (void*)filename;
+  pblog_file_ops.priv = (void *)filename;
 
   struct record_region regions[1];
   regions[0].offset = 0;

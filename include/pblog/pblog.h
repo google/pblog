@@ -39,7 +39,7 @@ struct record_intf;
  *   priv: user data pointer
  */
 typedef enum pblog_status (*pblog_event_cb)(int valid, const pblog_Event *event,
-    void *priv);
+                                            void *priv);
 
 typedef struct pblog {
   /* Adds a single event to the log.  event may be modified to add timestamp
@@ -55,8 +55,7 @@ typedef struct pblog {
    */
   enum pblog_status (*for_each_event)(struct pblog *pblog,
                                       pblog_event_cb callback,
-                                      pblog_Event *event,
-                                      void *priv);
+                                      pblog_Event *event, void *priv);
 
   /* Clears the entire log. */
   enum pblog_status (*clear)(struct pblog *pblog);
@@ -81,15 +80,12 @@ typedef struct pblog {
  * Returns:
  *   number of events found in the log on success, <0 on failure
  */
-int pblog_init(struct pblog *pblog,
-               int allow_clear_on_add,
-               struct record_intf *flash_ri,
-               void *mem_addr,
-               size_t mem_size);
+int pblog_init(struct pblog *pblog, int allow_clear_on_add,
+               struct record_intf *flash_ri, void *mem_addr, size_t mem_size);
 void pblog_free(struct pblog *pblog);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_PBLOG_H_ */
+#endif /* _PBLOG_PBLOG_H_ */

@@ -45,4 +45,4 @@ void event_add_kv_data(pblog_Event *event, const char *key, const char *value);
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_EVENT_H_ */
+#endif /* _PBLOG_EVENT_H_ */

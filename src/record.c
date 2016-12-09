@@ -32,13 +32,13 @@ unsigned char record_checksum(const void *buf, size_t len) {
 struct log_metadata {
   struct record_region *regions;
   int num_regions;
-  int used_regions;  // the number of regions in use
-  int head_region;  // the first region (beginning of records)
+  int used_regions;   // the number of regions in use
+  int head_region;    // the first region (beginning of records)
   int next_sequence;  // next sequence number to use
   struct pblog_flash_ops *flash;
 };
 
-const uint8_t record_magic[4] = {'R','E','C',0xfe};
+const uint8_t record_magic[4] = {'R', 'E', 'C', 0xfe};
 
 // Helper to return the i-th region starting from the head region.
 struct record_region *region_at(struct log_metadata *meta, int i) {
@@ -56,9 +56,8 @@ struct record_region *region_at(struct log_metadata *meta, int i) {
 //   len: maximum data length to read, updated with actual read data length
 //   data: data buffer to write
 static int region_read_record(struct log_metadata *meta,
-                              struct record_region *region,
-                              int offset, int *next_offset,
-                              size_t *len, void *data) {
+                              struct record_region *region, int offset,
+                              int *next_offset, size_t *len, void *data) {
   int rc;
   record_header header;
   int length;
@@ -73,8 +72,8 @@ static int region_read_record(struct log_metadata *meta,
   }
 
   // Read in the record header.
-  rc = meta->flash->read(meta->flash, region->offset + offset,
-                         sizeof(header), &header);
+  rc = meta->flash->read(meta->flash, region->offset + offset, sizeof(header),
+                         &header);
   if (rc != sizeof(header)) {
     return rc < 0 ? rc : PBLOG_ERR_IO;
   }
@@ -108,17 +107,18 @@ static int region_read_record(struct log_metadata *meta,
     // Read in the record data.
     if (data != NULL) {
       unsigned char checksum;
-      rc = meta->flash->read(meta->flash, region->offset + offset
-                             + sizeof(header), data_length, data);
+      rc = meta->flash->read(meta->flash,
+                             region->offset + offset + sizeof(header),
+                             data_length, data);
       if (rc != data_length) {
         *len = rc > 0 ? rc : 0;
         return rc < 0 ? rc : PBLOG_ERR_IO;
       }
       checksum = record_checksum(&header, sizeof(header)) +
-          record_checksum(data, data_length);
+                 record_checksum(data, data_length);
       if (checksum != 0) {
-        PBLOG_ERRF("checksum failure record off:%d, checksum: %d\n",
-                   offset, checksum);
+        PBLOG_ERRF("checksum failure record off:%d, checksum: %d\n", offset,
+                   checksum);
         rc = PBLOG_ERR_CHECKSUM;
       }
     }
@@ -160,8 +160,8 @@ static int log_read_record(struct record_intf *ri, int offset, int *next_offset,
 }
 
 static int region_append(struct log_metadata *meta,
-                         struct record_region *region,
-                         size_t len, const void *data) {
+                         struct record_region *region, size_t len,
+                         const void *data) {
   int rc;
   record_header header;
 
@@ -176,8 +176,8 @@ static int region_append(struct log_metadata *meta,
   header.length_msb = (record_size >> 8) & 0xff;
   // The checksum covers the entire record including the header.
   header.checksum = 0;
-  header.checksum = -(record_checksum(&header, sizeof(header)) +
-      record_checksum(data, len));
+  header.checksum =
+      -(record_checksum(&header, sizeof(header)) + record_checksum(data, len));
 
   // Write out the header then record.
   rc = meta->flash->write(meta->flash, region->offset + region->used_size,
@@ -199,8 +199,7 @@ static int region_append(struct log_metadata *meta,
   return record_size;
 }
 
-static int log_append(struct record_intf *ri,
-                      size_t len, const void *data) {
+static int log_append(struct record_intf *ri, size_t len, const void *data) {
   struct log_metadata *meta = ri->priv;
 
   // Check which region we can fit into.
@@ -239,8 +238,7 @@ static int log_get_free_space(struct record_intf *ri) {
 }
 
 static int region_create(struct log_metadata *meta,
-                         struct record_region *region,
-                         uint32_t sequence);
+                         struct record_region *region, uint32_t sequence);
 
 static int log_clear(struct record_intf *ri, int num_to_clear) {
   struct log_metadata *meta = ri->priv;
@@ -263,8 +261,8 @@ static int log_clear(struct record_intf *ri, int num_to_clear) {
       return rc;
     }
     (void)old_seq;
-    PBLOG_DPRINTF("region %d cleared, old rseq:%d new rseq:%d\n",
-                  i, old_seq, region->sequence);
+    PBLOG_DPRINTF("region %d cleared, old rseq:%d new rseq:%d\n", i, old_seq,
+                  region->sequence);
   }
 
   meta->head_region = (meta->head_region + num_to_clear) % meta->num_regions;
@@ -278,8 +276,7 @@ static int log_clear(struct record_intf *ri, int num_to_clear) {
 
 // Initialize a region for first time use.
 static int region_create(struct log_metadata *meta,
-                         struct record_region *region,
-                         uint32_t sequence) {
+                         struct record_region *region, uint32_t sequence) {
   struct region_header header;
   int i;
   int rc;
@@ -345,8 +342,8 @@ static int region_init(struct log_metadata *meta,
     return region_create(meta, region, meta->next_sequence++);
   }
 
-  sequence = header.sequence[0] | header.sequence[1] << 8
-      | header.sequence[2] << 16 | header.sequence[3] << 24;
+  sequence = header.sequence[0] | header.sequence[1] << 8 |
+             header.sequence[2] << 16 | header.sequence[3] << 24;
 
   if (header.magic[0] != record_magic[0] ||
       header.magic[1] != record_magic[1] ||
@@ -416,11 +413,9 @@ static int record_intf_init_meta(struct record_intf *log) {
       meta->regions[i].used_size = 0;
     }
 
-    PBLOG_DPRINTF(
-        "region %d. rseq:%d offset:%d size:%d used_size:%d\n",
-        i, meta->regions[i].sequence,
-        meta->regions[i].offset, meta->regions[i].size,
-        meta->regions[i].used_size);
+    PBLOG_DPRINTF("region %d. rseq:%d offset:%d size:%d used_size:%d\n", i,
+                  meta->regions[i].sequence, meta->regions[i].offset,
+                  meta->regions[i].size, meta->regions[i].used_size);
   }
 
   record_intf_init_head_region(meta);
@@ -428,15 +423,14 @@ static int record_intf_init_meta(struct record_intf *log) {
 
   PBLOG_DPRINTF(
       "init num_regions:%d used_regions:%d head_region:%d "
-      "next_sequence:%d\n", meta->num_regions, meta->used_regions,
-      meta->head_region, meta->next_sequence);
+      "next_sequence:%d\n",
+      meta->num_regions, meta->used_regions, meta->head_region,
+      meta->next_sequence);
   return PBLOG_SUCCESS;
 }
 
-int record_intf_init(record_intf *ri,
-                     const struct record_region *regions,
-                     int num_regions,
-                     struct pblog_flash_ops *flash) {
+int record_intf_init(record_intf *ri, const struct record_region *regions,
+                     int num_regions, struct pblog_flash_ops *flash) {
   struct log_metadata *meta;
   if (num_regions < 1) {
     return PBLOG_ERR_INVALID;

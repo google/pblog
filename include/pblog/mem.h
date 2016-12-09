@@ -34,4 +34,4 @@ extern struct pblog_flash_ops pblog_mem_ops;
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_MEM_H_ */
+#endif /* _PBLOG_MEM_H_ */

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
+#include <fcntl.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
+#include <sys/types.h>
 #include <unistd.h>
 
 #include <pblog/file.h>
@@ -60,8 +60,8 @@ static int file_erase(pblog_flash_ops *ops, int offset, size_t len) {
 }
 
 struct pblog_flash_ops pblog_file_ops = {
-  .read = &file_read,
-  .write = &file_write,
-  .erase = &file_erase,
-  .priv = NULL  /* filename to be set on instantiation */
+    .read = &file_read,
+    .write = &file_write,
+    .erase = &file_erase,
+    .priv = NULL /* filename to be set on instantiation */
 };

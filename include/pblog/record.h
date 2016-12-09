@@ -43,7 +43,7 @@ typedef struct region_header {
    * LSB in sequence[0].  Note: lowest sequence number is the first in the list.
    */
   uint8_t sequence[4];
-}  __attribute__((packed)) region_header;
+} __attribute__((packed)) region_header;
 
 typedef struct record_intf {
   /* Reads a record.
@@ -57,7 +57,7 @@ typedef struct record_intf {
    *   next_offset set to '0' on end of log
    */
   int (*read_record)(struct record_intf *ri, int offset, int *next_offset,
-      size_t *len, void *data);
+                     size_t *len, void *data);
 
   /* Appends a record.
    * Args:
@@ -84,9 +84,9 @@ typedef struct record_intf {
 
 /* Defines an erase block region */
 typedef struct record_region {
-  uint32_t offset;  /* offset of this region */
-  uint32_t size;  /* total size of region in bytes */
-  uint32_t used_size;  /* amount of bytes used in this region */
+  uint32_t offset;    /* offset of this region */
+  uint32_t size;      /* total size of region in bytes */
+  uint32_t used_size; /* amount of bytes used in this region */
   uint32_t sequence;  /* sequence number */
 } __attribute__((packed)) record_region;
 
@@ -94,14 +94,12 @@ typedef struct record_region {
  * Args:
  *   regions: array of regions to use (will be copied into internal structures)
  */
-int record_intf_init(record_intf *ri,
-                     const struct record_region *regions,
-                     int num_regions,
-                     struct pblog_flash_ops *flash);
+int record_intf_init(record_intf *ri, const struct record_region *regions,
+                     int num_regions, struct pblog_flash_ops *flash);
 void record_intf_free(record_intf *ri);
 
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_RECORD_H_ */
+#endif /* _PBLOG_RECORD_H_ */

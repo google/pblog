@@ -28,10 +28,9 @@ extern "C" {
 
 typedef struct pblog_flash_ops {
   /* Read/write operations.  Returns number of bytes read/written. */
-  int (*read)(struct pblog_flash_ops *ops, int offset,
-      size_t len, void *data);
-  int (*write)(struct pblog_flash_ops *ops, int offset,
-      size_t len, const void *data);
+  int (*read)(struct pblog_flash_ops *ops, int offset, size_t len, void *data);
+  int (*write)(struct pblog_flash_ops *ops, int offset, size_t len,
+               const void *data);
   /* Erase region.  Returns 0 on success */
   int (*erase)(struct pblog_flash_ops *ops, int offset, size_t len);
 
@@ -42,4 +41,4 @@ typedef struct pblog_flash_ops {
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_FLASH_H_ */
+#endif /* _PBLOG_FLASH_H_ */

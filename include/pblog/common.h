@@ -40,16 +40,18 @@ extern int pblog_printf(int severity, const char *format, ...);
 #define PBLOG_STR(s) #s
 
 #ifndef PBLOG_DPRINTF
-#define PBLOG_DPRINTF(format, ...) \
-  do { \
-    pblog_printf(0, __FILE__ ":" PBLOG_XSTR(__LINE__) " " format, ##__VA_ARGS__); \
+#define PBLOG_DPRINTF(format, ...)                                \
+  do {                                                            \
+    pblog_printf(0, __FILE__ ":" PBLOG_XSTR(__LINE__) " " format, \
+                 ##__VA_ARGS__);                                  \
   } while (0)
 #endif
 
 #ifndef PBLOG_ERRF
-#define PBLOG_ERRF(format, ...) \
-  do { \
-    pblog_printf(1, __FILE__ ":" PBLOG_XSTR(__LINE__) " " format, ##__VA_ARGS__); \
+#define PBLOG_ERRF(format, ...)                                   \
+  do {                                                            \
+    pblog_printf(1, __FILE__ ":" PBLOG_XSTR(__LINE__) " " format, \
+                 ##__VA_ARGS__);                                  \
   } while (0)
 #endif
 
@@ -66,4 +68,4 @@ enum pblog_status {
 } /* extern "C" */
 #endif
 
-#endif  /* _PBLOG_COMMON_H_ */
+#endif /* _PBLOG_COMMON_H_ */
