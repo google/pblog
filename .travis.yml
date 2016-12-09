@@ -1,0 +1,17 @@
+dist: trusty
+sudo: required
+language: c
+compiler:
+  - gcc
+  - clang
+
+script:
+  - make NANOPB_DIR=nanopb all
+  - make NANOPB_DIR=nanopb test
+
+before_install:
+  - sudo apt update
+  - sudo apt install protobuf-compiler
+  - pip install protobuf
+  - git clone https://github.com/nanopb/nanopb
+  - make -C nanopb/generator/proto  # TOOD(wak): Remove once we fix this in the makefile

@@ -1,6 +1,8 @@
 pblog - Protocol Buffer Log Library
 ===================================
 
+![alt text](https://travis-ci.org/google/pblog.svg?branch=master "TravisCI Status")
+
 pblog is a small, low overhead, structured logging library intended to be used
 to log firmware events. It is based on protobufs and uses the nanopb
 implementation in order to tackle object size concerns.
