@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-#include "pblog.h"
-#include "event.h"
-#include "file.h"
-#include "record.h"
-
 #include <string>
-#include "file/base/fileutils.h"
-#include "file/base/helpers.h"
-#include "strings/escaping.h"
-#include "testing/base/public/gunit.h"
+#include <vector>
+
+#include <gtest/gtest.h>
+#include <pblog/event.h>
+#include <pblog/file.h>
+#include <pblog/pblog.h>
+#include <pblog/record.h>
+
+#include "common.h"
 
 namespace {
+
+using std::string;
+using std::vector;
 
 class PblogFileTest : public ::testing::Test {
  public:
   PblogFileTest() {
-    filename_ = FLAGS_test_tmpdir + "/pblog.tst";
+    filename_ = "/tmp/pblog.tst";
     flash_ri_ = NULL;
     mem_log_ = NULL;
     pblog_ = NULL;
-    events = new vector<pblog_Event*>;
+    events = new vector<pblog_Event *>;
   }
 
   virtual ~PblogFileTest() {
@@ -53,21 +56,21 @@ class PblogFileTest : public ::testing::Test {
     file_regions[1].size = size1;
     file_regions[1].used_size = 0;
 
-    flash_ri_ = reinterpret_cast<struct record_intf*>(
+    flash_ri_ = reinterpret_cast<struct record_intf *>(
         malloc(sizeof(struct record_intf)));
-    pblog_file_ops.priv = (void*)filename_.c_str();
+    pblog_file_ops.priv = (void *)filename_.c_str();
     record_intf_init(flash_ri_, file_regions, 2, &pblog_file_ops);
 
     mem_log_ = malloc(size0 + size1);
 
-    pblog_ = static_cast<struct pblog*>(malloc(sizeof(struct pblog)));
+    pblog_ = static_cast<struct pblog *>(malloc(sizeof(struct pblog)));
     pblog_->get_current_bootnum = NULL;
     pblog_->get_time_now = NULL;
     pblog_init(pblog_, 0, flash_ri_, mem_log_, size0 + size1);
   }
 
   void clear_state() {
-    for (int i = 0; i < events->size(); ++i) {
+    for (size_t i = 0; i < events->size(); ++i) {
       delete events->at(i);
     }
     events->clear();
@@ -88,12 +91,13 @@ class PblogFileTest : public ::testing::Test {
   pblog *pblog_;
 
   string filename_;
-  static vector<pblog_Event*> *events;
+  static vector<pblog_Event *> *events;
 };
 
-vector<pblog_Event*> *PblogFileTest::events;
+vector<pblog_Event *> *PblogFileTest::events;
 
-pblog_status collect_events_cb(int valid, const pblog_Event *event, void *priv) {
+pblog_status collect_events_cb(int valid, const pblog_Event *event,
+                               void *priv) {
   pblog_Event *new_event = new pblog_Event;
   memcpy(new_event, event, sizeof(*event));
   PblogFileTest::events->push_back(new_event);
@@ -102,7 +106,9 @@ pblog_status collect_events_cb(int valid, const pblog_Event *event, void *priv) 
 
 TEST_F(PblogFileTest, TotallyEmptyLog) {
   init_2regions(0, 0xff, 0x100, 0xff);
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  pblog_Event event;
+
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   EXPECT_EQ(1, events->size());
 
   // Should log a clear event.
@@ -111,11 +117,12 @@ TEST_F(PblogFileTest, TotallyEmptyLog) {
 
 TEST_F(PblogFileTest, LogClearedSuccess) {
   init_2regions(0, 0xff, 0x100, 0xff);
+  pblog_Event event;
 
   EXPECT_EQ(0, pblog_->clear(pblog_));
 
   // Should be a single clear event.
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1, events->size());
   EXPECT_EQ(pblog_TYPE_LOG_CLEARED, events->at(0)->type);
 }
@@ -130,9 +137,10 @@ TEST_F(PblogFileTest, ClearNotEnoughRoom) {
 
 TEST_F(PblogFileTest, LogAFewEvents) {
   init_2regions(0, 0xff, 0x100, 0xff);
+  pblog_Event event;
 
-  int num_events = 10;
-  for (int i = 0; i < num_events; ++i) {
+  size_t num_events = 10;
+  for (size_t i = 0; i < num_events; ++i) {
     pblog_Event event;
     event_init(&event);
     event.type = pblog_TYPE_BOOT_UP;
@@ -140,16 +148,17 @@ TEST_F(PblogFileTest, LogAFewEvents) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1 + num_events, events->size());
 }
 
 TEST_F(PblogFileTest, LogSecondRegion) {
   // First region is small.
   init_2regions(0, 30, 0x100, 0xff);
+  pblog_Event event;
 
-  int num_events = 10;
-  for (int i = 0; i < num_events; ++i) {
+  size_t num_events = 10;
+  for (size_t i = 0; i < num_events; ++i) {
     pblog_Event event;
     event_init(&event);
     event.type = pblog_TYPE_BOOT_UP;
@@ -157,16 +166,17 @@ TEST_F(PblogFileTest, LogSecondRegion) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1 + num_events, events->size());
 }
 
 TEST_F(PblogFileTest, LogFull) {
   // Both regions are small.
-  init_2regions(0, 40, 0x100, 40);
+  init_2regions(0, 30, 0x100, 30);
+  pblog_Event event;
 
-  int num_events = 8;
-  for (int i = 0; i < num_events; ++i) {
+  size_t num_events = 8;
+  for (size_t i = 0; i < num_events; ++i) {
     pblog_Event event;
     event_init(&event);
     event.type = pblog_TYPE_BOOT_UP;
@@ -178,15 +188,16 @@ TEST_F(PblogFileTest, LogFull) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1 + num_events - 1, events->size());
 }
 
 TEST_F(PblogFileTest, LogPersists) {
   init_2regions(0, 0xff, 0x100, 0xff);
+  pblog_Event event;
 
-  int num_events = 4;
-  for (int i = 0; i < num_events; ++i) {
+  size_t num_events = 4;
+  for (size_t i = 0; i < num_events; ++i) {
     pblog_Event event;
     event_init(&event);
     event.type = pblog_TYPE_BOOT_UP;
@@ -194,20 +205,20 @@ TEST_F(PblogFileTest, LogPersists) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1 + num_events, events->size());
 
   clear_state();
   init_2regions(0, 0xff, 0x100, 0xff);
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1 + num_events, events->size());
 
   clear_state();
   // Switch the order of the region offsets, should not make a difference.
   init_2regions(0x100, 0xff, 0, 0xff);
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1 + num_events, events->size());
 
   // Clear the log.
@@ -216,7 +227,7 @@ TEST_F(PblogFileTest, LogPersists) {
   clear_state();
   init_2regions(0, 0xff, 0x100, 0xff);
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, NULL));
+  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
   ASSERT_EQ(1, events->size());
 }
 

@@ -11,21 +11,48 @@ Dependencies
 ------------
 Runtime
 
-- protobuf
+- c compiler
 - make
-- nanopb
+- protobuf         https://github.com/google/protobuf
+- python-protobuf  https://pypi.python.org/pypi/protobuf
 
-Source
+Testing
+- c++ compiler
 
-- nanopb
+For ubuntu systems these can all be installed with apt
+
+    apt install make protobuf-compiler python-protobuf
 
 Building
 --------
     make NANOPB_DIR=<NANOPB_SOURCE_DIR> all
 
+if you don't already have nanopb you can
+
+    git clone https://github.com/nanopb/nanopb
+	make -C nanopb/generator/proto
+	make NANOPB_DIR=nanopb all
+
 Installing
 ----------
     make NANOPB_DIR=<NANOPB_SOURCE_DIR> PREFIX=/usr install
+
+Testing
+-------
+    make NANOPB_DIR=<NANOPB_SOURCE_DIR> GTEST_DIR=<GTEST_DIR> check
+
+if you don't already have gtest you can run
+
+    git clone https://github.com/google/googletest
+    pushd "googletest" >/dev/null
+    cmake \
+      -DCMAKE_INSTALL_PREFIX="$(pwd)/googletest" \
+      -DMAKE_BUILD_TYPE=Release \
+      -DBUILD_GTEST=ON -DBUILD_GMOCK=OFF
+    make
+    make install
+    popd >/dev/null
+    make NANOPB_DIR=<NANOPB_SOURCE_DIR> GTEST_DIR=googletest check
 
 Use in a project
 ----------------

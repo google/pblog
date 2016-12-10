@@ -65,7 +65,11 @@ PBLOG_PROTO_OBJECTS = $(patsubst $(PBLOG_DIR)/proto/%.proto,$(PBLOG_OUT)/pblog/%
 PBLOG_NANOPB_OBJECTS = $(patsubst $(NANOPB_DIR)/%.c,$(PBLOG_OUT)/nanopb/%.o,$(NANOPB_CORE))
 PBLOG_OBJECTS = $(PBLOG_NANOPB_OBJECTS) $(PBLOG_ONLY_OBJECTS) $(PBLOG_PROTO_OBJECTS)
 
-.SECONDARY: $(PBLOG_HEADERS)
+PBLOG_SECONDARY: $(PBLOG_HEADERS)
+PBLOG_PHONY: pblog_clean
+
+.SECONDARY: $(PBLOG_SECONDARY)
+.PHONY: $(PBLOG_PHONY)
 
 # Nanopb headers
 $(PBLOG_INCLUDE)/nanopb/%.h: $(NANOPB_DIR)/%.h
@@ -110,6 +114,5 @@ $(PBLOG_OUT)/libpblog.so: $(PBLOG_OBJECTS)
 	@$(PBLOG_MKDIR) -p $(PBLOG_OUT)
 	$(PBLOG_CC) -shared -Wl,-soname,libpblog.so $(PBLOG_OBJECTS) -o $(PBLOG_OUT)/libpblog.so
 
-.PHONY: pblog_clean
 pblog_clean:
 	rm -rf $(PBLOG_OUT)

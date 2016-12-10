@@ -1,17 +1,17 @@
 dist: trusty
-sudo: required
-language: c
+sudo: false
+language:
+  - c
+  - c++
 compiler:
   - gcc
   - clang
-
-script:
-  - make NANOPB_DIR=nanopb all
-  - make NANOPB_DIR=nanopb test
-
-before_install:
-  - sudo apt update
-  - sudo apt install protobuf-compiler
-  - pip install protobuf
-  - git clone https://github.com/nanopb/nanopb
-  - make -C nanopb/generator/proto  # TOOD(wak): Remove once we fix this in the makefile
+env:
+  global:
+    - GOOGLETEST_VERSION=1.8.0
+    - NANOPB_VERSION=58af4d1fb733c5348b68dd3980f2a230d95400b4
+  matrix:
+    - PROTOBUF_VERSION=2.6.1
+    - PROTOBUF_VERSION=3.1.0
+install: ./.travis-install.sh
+script: ./.travis-script.sh
