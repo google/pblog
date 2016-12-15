@@ -36,7 +36,8 @@ static bool string_encoder(pb_ostream_t *stream, const pb_field_t *field,
   return pb_encode_string(stream, (uint8_t *)str, strlen(str));
 }
 
-static bool string_decoder(pb_istream_t *stream, const pb_field_t *field,
+static bool string_decoder(pb_istream_t *stream,
+                           const pb_field_t *field, // NOLINT
                            void **arg) {
   int strsize = stream->bytes_left;
   char *str = (char *)malloc(strsize + 1);
@@ -46,7 +47,9 @@ static bool string_decoder(pb_istream_t *stream, const pb_field_t *field,
 
   pb_read(stream, (uint8_t *)str, strsize);
   str[strsize] = '\0';
-  if (*arg) free(*arg);
+  if (*arg) {
+    free(*arg);
+  }
   *arg = str;
   return true;
 }
@@ -111,15 +114,15 @@ void event_free(pblog_Event *event) {
   }
 }
 
-void event_add_kv_data(pblog_Event *entry, const char *key, const char *value) {
-  if (entry->data_count >= pb_arraysize(pblog_Event, data)) {
+void event_add_kv_data(pblog_Event *event, const char *key, const char *value) {
+  if (event->data_count >= pb_arraysize(pblog_Event, data)) {
     return;
   }
 
-  entry->data[entry->data_count].key.arg = strdup(key);
-  entry->data[entry->data_count].key.funcs.encode = string_encoder;
-  entry->data[entry->data_count].value.arg = strdup(value);
-  entry->data[entry->data_count].value.funcs.encode = string_encoder;
+  event->data[event->data_count].key.arg = strdup(key);
+  event->data[event->data_count].key.funcs.encode = string_encoder;
+  event->data[event->data_count].value.arg = strdup(value);
+  event->data[event->data_count].value.funcs.encode = string_encoder;
 
-  entry->data_count++;
+  event->data_count++;
 }
