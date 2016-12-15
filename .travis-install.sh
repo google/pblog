@@ -17,6 +17,9 @@ downloadUnpack() {
   rmdir "$dirname.tmp"
 }
 
+# Don't vendor stuff into the source directory
+pushd .. >/dev/null
+
 # Setup protoc
 PROTOBUF_BASE_URL="https://github.com/google/protobuf/releases/download/v$PROTOBUF_VERSION"
 PROTOBUF_URLS=(
@@ -33,7 +36,8 @@ make "${MAKEFLAGS[@]}" install
 popd >/dev/null
 
 # Setup python-protobuf
-pip install "protobuf==$PROTOBUF_VERSION"
+pip install --user --force-reinstall --ignore-installed --upgrade pip
+pip install --user "protobuf==$PROTOBUF_VERSION"
 
 # Setup nanopb
 downloadUnpack "https://github.com/nanopb/nanopb/archive/$NANOPB_VERSION.tar.gz" "nanopb"
@@ -48,4 +52,7 @@ cmake \
   -DBUILD_GTEST=ON -DBUILD_GMOCK=OFF
 make "${MAKEFLAGS[@]}"
 make "${MAKEFLAGS[@]}" install
+popd >/dev/null
+
+# Pop back into the source directory
 popd >/dev/null
