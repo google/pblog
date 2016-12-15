@@ -16,8 +16,8 @@
 
 /* Common functions/definitions */
 
-#ifndef _PBLOG_COMMON_H_
-#define _PBLOG_COMMON_H_
+#ifndef PBLOG_COMMON_H
+#define PBLOG_COMMON_H
 
 #include <stdio.h>
 
@@ -65,7 +65,7 @@ enum pblog_status {
 };
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_COMMON_H_ */
+#endif  /* PBLOG_COMMON_H */

@@ -16,8 +16,8 @@
 
 /* Protobuf eventlog interface . */
 
-#ifndef _PBLOG_PBLOG_H_
-#define _PBLOG_PBLOG_H_
+#ifndef PBLOG_PBLOG_H
+#define PBLOG_PBLOG_H
 
 #include <stdlib.h>
 
@@ -85,7 +85,7 @@ int pblog_init(struct pblog *pblog, int allow_clear_on_add,
 void pblog_free(struct pblog *pblog);
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_PBLOG_H_ */
+#endif  /* PBLOG_PBLOG_H */

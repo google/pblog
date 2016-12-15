@@ -16,8 +16,8 @@
 
 /* In-memory operations support */
 
-#ifndef _PBLOG_MEM_H_
-#define _PBLOG_MEM_H_
+#ifndef PBLOG_MEM_H
+#define PBLOG_MEM_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -31,7 +31,7 @@ extern "C" {
 extern struct pblog_flash_ops pblog_mem_ops;
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_MEM_H_ */
+#endif  /* PBLOG_MEM_H */

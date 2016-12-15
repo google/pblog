@@ -16,8 +16,8 @@
 
 /* Protobuf eventlog event helper functions */
 
-#ifndef _PBLOG_EVENT_H_
-#define _PBLOG_EVENT_H_
+#ifndef PBLOG_EVENT_H
+#define PBLOG_EVENT_H
 
 #include <stdlib.h>
 
@@ -42,7 +42,7 @@ void event_free(pblog_Event *event);
 void event_add_kv_data(pblog_Event *event, const char *key, const char *value);
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_EVENT_H_ */
+#endif  /* PBLOG_EVENT_H */

@@ -16,8 +16,8 @@
 
 /* Flash interface */
 
-#ifndef _PBLOG_FLASH_H_
-#define _PBLOG_FLASH_H_
+#ifndef PBLOG_FLASH_H
+#define PBLOG_FLASH_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -38,7 +38,7 @@ typedef struct pblog_flash_ops {
 } pblog_flash_ops;
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_FLASH_H_ */
+#endif  /* PBLOG_FLASH_H */

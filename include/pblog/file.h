@@ -16,8 +16,8 @@
 
 /* File reading emulation for flash operations */
 
-#ifndef _PBLOG_FILE_H_
-#define _PBLOG_FILE_H_
+#ifndef PBLOG_FILE_H
+#define PBLOG_FILE_H
 
 #include <stddef.h>
 #include <stdint.h>
@@ -31,7 +31,7 @@ extern "C" {
 extern struct pblog_flash_ops pblog_file_ops;
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_FILE_H_ */
+#endif  /* PBLOG_FILE_H */

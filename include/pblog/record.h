@@ -16,11 +16,11 @@
 
 /* Log-structured record interface */
 
-#ifndef _PBLOG_RECORD_H_
-#define _PBLOG_RECORD_H_
+#ifndef PBLOG_RECORD_H
+#define PBLOG_RECORD_H
 
-#include <stdint.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,7 +99,7 @@ int record_intf_init(record_intf *ri, const struct record_region *regions,
 void record_intf_free(record_intf *ri);
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_RECORD_H_ */
+#endif  /* PBLOG_RECORD_H */

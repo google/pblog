@@ -16,8 +16,8 @@
 
 /* Simple NVRAM interface */
 
-#ifndef _PBLOG_NVRAM_H_
-#define _PBLOG_NVRAM_H_
+#ifndef PBLOG_NVRAM_H
+#define PBLOG_NVRAM_H
 
 #include <stdlib.h>
 
@@ -92,7 +92,7 @@ void pblog_nvram_init(struct nvram *nvram, struct record_intf *ri);
 void pblog_nvram_free(struct nvram *nvram);
 
 #ifdef __cplusplus
-} /* extern "C" */
+}  /* extern "C" */
 #endif
 
-#endif /* _PBLOG_NVRAM_H_ */
+#endif  /* PBLOG_NVRAM_H */
