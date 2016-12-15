@@ -109,7 +109,7 @@ TEST_F(PblogFileTest, TotallyEmptyLog) {
   pblog_Event event;
 
   EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
-  EXPECT_EQ(1, events->size());
+  EXPECT_EQ(static_cast<size_t>(1), events->size());
 
   // Should log a clear event.
   EXPECT_EQ(pblog_TYPE_LOG_CLEARED, events->at(0)->type);
@@ -123,7 +123,7 @@ TEST_F(PblogFileTest, LogClearedSuccess) {
 
   // Should be a single clear event.
   EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
-  ASSERT_EQ(1, events->size());
+  ASSERT_EQ(static_cast<size_t>(1), events->size());
   EXPECT_EQ(pblog_TYPE_LOG_CLEARED, events->at(0)->type);
 }
 
@@ -167,7 +167,7 @@ TEST_F(PblogFileTest, LogSecondRegion) {
   }
 
   EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
-  ASSERT_EQ(1 + num_events, events->size());
+  ASSERT_EQ(static_cast<size_t>(1 + num_events), events->size());
 }
 
 TEST_F(PblogFileTest, LogFull) {
@@ -180,7 +180,7 @@ TEST_F(PblogFileTest, LogFull) {
     pblog_Event event;
     event_init(&event);
     event.type = pblog_TYPE_BOOT_UP;
-    if (i == num_events - 1) {
+    if (i + 1 == num_events) {
       EXPECT_NE(0, pblog_->add_event(pblog_, &event));
     } else {
       EXPECT_EQ(0, pblog_->add_event(pblog_, &event));
@@ -228,7 +228,7 @@ TEST_F(PblogFileTest, LogPersists) {
   init_2regions(0, 0xff, 0x100, 0xff);
 
   EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, NULL));
-  ASSERT_EQ(1, events->size());
+  ASSERT_EQ(static_cast<size_t>(1), events->size());
 }
 
 }  // namespace

@@ -138,7 +138,7 @@ TEST_F(RecordFileTest, FirstTimeInit) {
   EXPECT_LT(ri_->get_free_space(ri_), 0xff + 0xff);
   EXPECT_GT(ri_->get_free_space(ri_), 0xff);
 
-  EXPECT_EQ(0, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(0), NumValidRecords());
   EXPECT_NE(0, GetRecord(0, NULL));
 }
 
@@ -159,7 +159,7 @@ TEST_F(RecordFileTest, InitWithGarbage) {
   EXPECT_LT(ri_->get_free_space(ri_), 0xff + 0xff);
   EXPECT_GT(ri_->get_free_space(ri_), 0xff);
 
-  EXPECT_EQ(0, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(0), NumValidRecords());
   EXPECT_NE(0, GetRecord(0, NULL));
 }
 
@@ -168,9 +168,9 @@ TEST_F(RecordFileTest, AddSingleRecord) {
 
   const string expected_data("asdfjkl1111000");
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<ssize_t>(expected_data.size()));
 
-  EXPECT_EQ(1, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(1), NumValidRecords());
   string data;
   EXPECT_EQ(0, GetRecord(0, &data));
   EXPECT_EQ(expected_data, data);
@@ -181,9 +181,9 @@ TEST_F(RecordFileTest, ReadRecordBuffertoSmall) {
 
   const string expected_data("asdfjkl1111000");
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<int>(expected_data.size()));
 
-  EXPECT_EQ(1, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(1), NumValidRecords());
 
   int next_offset;
   string data(expected_data.size() - 1, 0);
@@ -198,11 +198,9 @@ TEST_F(RecordFileTest, FillWithRecords) {
   InitRegions({make_pair(0, 0xff), make_pair(0x100, 0xff)});
 
   size_t num_written = FillWithRecords();
-  ASSERT_GT(num_written, 0);
+  EXPECT_EQ(num_written, NumValidRecords());
 
   EXPECT_LT(ri_->get_free_space(ri_), 8);
-
-  EXPECT_EQ(num_written, NumValidRecords());
   for (size_t i = 0; i < num_written; ++i) {
     string data;
     EXPECT_EQ(0, GetRecord(i, &data));
@@ -214,13 +212,12 @@ TEST_F(RecordFileTest, ClearAllRecords) {
   InitRegions({make_pair(0, 0xff), make_pair(0x100, 0xff)});
 
   size_t num_written = FillWithRecords();
-  ASSERT_GT(num_written, 0);
   EXPECT_EQ(num_written, NumValidRecords());
   EXPECT_LT(ri_->get_free_space(ri_), 8);
 
   EXPECT_EQ(0xff + 0xff, ri_->clear(ri_, 0));
 
-  EXPECT_EQ(0, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(0), NumValidRecords());
   EXPECT_NE(0, GetRecord(0, NULL));
   EXPECT_GT(ri_->get_free_space(ri_), 0xff);
 }
@@ -229,16 +226,15 @@ TEST_F(RecordFileTest, ClearOneRegion) {
   InitRegions({make_pair(0, 0x7f), make_pair(0x100, 0xff)});
 
   size_t num_written = FillWithRecords();
-  ASSERT_GT(num_written, 0);
   EXPECT_EQ(num_written, NumValidRecords());
   EXPECT_LT(ri_->get_free_space(ri_), 8);
 
   EXPECT_EQ(0x7f, ri_->clear(ri_, 1));
 
   size_t num_records_after_clear = NumValidRecords();
-  size_t num_cleared = num_written - num_records_after_clear;
-  EXPECT_GT(num_cleared, 0);
+  ASSERT_GT(num_written, num_records_after_clear);
 
+  size_t num_cleared = num_written - num_records_after_clear;
   for (size_t i = 0; i < num_records_after_clear; ++i) {
     string data;
     EXPECT_EQ(0, GetRecord(i, &data));
@@ -251,16 +247,16 @@ TEST_F(RecordFileTest, RecordsPersist) {
 
   const string expected_data("asdfjkl1111000");
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<ssize_t>(expected_data.size()));
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<ssize_t>(expected_data.size()));
 
-  EXPECT_EQ(2, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(2), NumValidRecords());
 
   ClearState();
   InitRegions({make_pair(0, 0xff), make_pair(0x100, 0xff)});
 
-  EXPECT_EQ(2, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(2), NumValidRecords());
   string data;
   EXPECT_EQ(0, GetRecord(0, &data));
   EXPECT_EQ(expected_data, data);
@@ -273,19 +269,19 @@ TEST_F(RecordFileTest, CorruptRecordData) {
 
   const string expected_data("asdfjkl1111000");
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<ssize_t>(expected_data.size()));
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<ssize_t>(expected_data.size()));
 
-  EXPECT_EQ(2, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(2), NumValidRecords());
 
   // Corrupt the 1st byte of 1st record data with a NUL byte
   size_t offset = sizeof(record_header) + sizeof(region_header);
   unsigned char val = 0;
-  EXPECT_EQ(sizeof(val),
+  EXPECT_EQ(static_cast<ssize_t>(sizeof(val)),
             pblog_file_ops.write(&pblog_file_ops, offset, sizeof(val), &val));
 
-  EXPECT_EQ(1, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(1), NumValidRecords());
   string data;
   // Should return checksum error but still read the data.
   EXPECT_EQ(PBLOG_ERR_CHECKSUM, GetRecord(0, &data));
@@ -299,7 +295,7 @@ TEST_F(RecordFileTest, CorruptRecordData) {
   ClearState();
   InitRegions({make_pair(0, 0xff), make_pair(0x100, 0xff)});
 
-  EXPECT_EQ(1, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(1), NumValidRecords());
   // Should return checksum error but still read the data.
   EXPECT_EQ(PBLOG_ERR_CHECKSUM, GetRecord(0, &data));
   EXPECT_EQ(expected_data.size(), data.size());
@@ -314,11 +310,11 @@ TEST_F(RecordFileTest, CorruptRecordLength) {
 
   const string expected_data("asdfjkl1111000");
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<ssize_t>(expected_data.size()));
   EXPECT_GE(ri_->append(ri_, expected_data.size(), &expected_data[0]),
-            expected_data.size());
+            static_cast<ssize_t>(expected_data.size()));
 
-  EXPECT_EQ(2, NumValidRecords());
+  EXPECT_EQ(static_cast<size_t>(2), NumValidRecords());
 
   // Try many possible length corruptions.
   for (size_t i = 0; i < 0x600; ++i) {
@@ -328,17 +324,17 @@ TEST_F(RecordFileTest, CorruptRecordLength) {
     int offset = sizeof(region_header);
     uint8_t val[] = {static_cast<uint8_t>((i >> 8) & 0xff),
                      static_cast<uint8_t>(i & 0xff)};
-    EXPECT_EQ(sizeof(val),
+    EXPECT_EQ(static_cast<ssize_t>(sizeof(val)),
               pblog_file_ops.write(&pblog_file_ops, offset, sizeof(val), &val));
 
-    ASSERT_EQ(0, NumValidRecords()) << "for value " << i;
+    ASSERT_EQ(static_cast<size_t>(0), NumValidRecords()) << "for value " << i;
     string data;
     EXPECT_NE(0, GetRecord(0, &data));
 
     ClearState();
     InitRegions({make_pair(0, 0xff), make_pair(0x100, 0xff)});
 
-    ASSERT_EQ(0, NumValidRecords()) << "for value " << i;
+    ASSERT_EQ(static_cast<size_t>(0), NumValidRecords()) << "for value " << i;
     EXPECT_NE(0, GetRecord(0, &data));
   }
 }
@@ -349,7 +345,7 @@ TEST_F(RecordFileTest, BigLog) {
 
   // We should be able to write atleast 1000 records.
   size_t num_written = FillWithRecords();
-  ASSERT_GT(num_written, 1000);
+  ASSERT_GT(num_written, static_cast<size_t>(1000));
   EXPECT_EQ(num_written, NumValidRecords());
 
   // Clear 1 region.
@@ -357,7 +353,7 @@ TEST_F(RecordFileTest, BigLog) {
 
   // Should be able to write atleast 100 new records.
   size_t new_written = FillWithRecords();
-  ASSERT_GT(new_written, 100);
+  ASSERT_GT(new_written, static_cast<size_t>(100));
   EXPECT_EQ(num_written, NumValidRecords());
 }
 
