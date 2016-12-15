@@ -16,6 +16,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -39,18 +40,17 @@ class RecordFileTest : public ::testing::Test {
  public:
   RecordFileTest() {
     filename_ = "/tmp/record.tst";
-    ri_ = NULL;
+    ri_ = nullptr;
   }
 
-  virtual ~RecordFileTest() {
+  ~RecordFileTest() override {
     ClearState();
 
     unlink(filename_.c_str());
   }
 
   void InitRegions(const vector<pair<uint32_t, uint32_t> > &regions) {
-    struct record_region *region_structs =
-        new struct record_region[regions.size()];
+    auto region_structs = new struct record_region[regions.size()];
 
     for (size_t i = 0; i < regions.size(); ++i) {
       memset(&region_structs[i], 0, sizeof(region_structs[i]));
@@ -59,7 +59,7 @@ class RecordFileTest : public ::testing::Test {
     }
 
     ri_ = new struct record_intf;
-    pblog_file_ops.priv = (void *)filename_.c_str();
+    pblog_file_ops.priv = static_cast<void *>(&filename_[0]);
     ASSERT_EQ(0, record_intf_init(ri_, region_structs, regions.size(),
                                   &pblog_file_ops));
     delete[] region_structs;
@@ -68,7 +68,7 @@ class RecordFileTest : public ::testing::Test {
   void ClearState() {
     record_intf_free(ri_);
     delete ri_;
-    ri_ = NULL;
+    ri_ = nullptr;
   }
 
   size_t NumValidRecords() {
@@ -106,7 +106,7 @@ class RecordFileTest : public ::testing::Test {
       num_records++;
     }
 
-    if (record_data) {
+    if (record_data != nullptr) {
       *record_data = data.substr(0, len);
     }
     return rc;
@@ -116,7 +116,7 @@ class RecordFileTest : public ::testing::Test {
     string expected_data;
     size_t num_written = 0;
     int rc = 0;
-    while (1) {
+    while (true) {
       expected_data = StringPrintf("%08x", num_written);
       rc = ri_->append(ri_, expected_data.size(), &expected_data[0]);
       EXPECT_TRUE(rc > 0 || rc == PBLOG_ERR_NO_SPACE);
@@ -140,20 +140,19 @@ TEST_F(RecordFileTest, FirstTimeInit) {
   EXPECT_GT(ri_->get_free_space(ri_), 0xff);
 
   EXPECT_EQ(static_cast<size_t>(0), NumValidRecords());
-  EXPECT_NE(0, GetRecord(0, NULL));
+  EXPECT_NE(0, GetRecord(0, nullptr));
 }
 
 TEST_F(RecordFileTest, InitWithGarbage) {
   // Fill the file with garbage.
-  string garbage(4096, 0);
+  string garbage(4096, '\0');
   for (size_t i = 0; i < garbage.size(); ++i) {
     garbage[i] = i;
   }
-  FILE *file = fopen(filename_.c_str(), "w");
+  std::unique_ptr<FILE, int(*)(FILE *)> file(fopen(filename_.c_str(), "w"), fclose);
   ASSERT_NE(nullptr, file);
   ASSERT_EQ(garbage.size(),
-            fwrite(garbage.data(), sizeof(char), garbage.size(), file));
-  ASSERT_EQ(0, fclose(file));
+            fwrite(garbage.data(), sizeof(char), garbage.size(), file.get()));  // NOLINT
 
   InitRegions({make_pair(0, 0xff), make_pair(0x100, 0xff)});
 
@@ -161,7 +160,7 @@ TEST_F(RecordFileTest, InitWithGarbage) {
   EXPECT_GT(ri_->get_free_space(ri_), 0xff);
 
   EXPECT_EQ(static_cast<size_t>(0), NumValidRecords());
-  EXPECT_NE(0, GetRecord(0, NULL));
+  EXPECT_NE(0, GetRecord(0, nullptr));
 }
 
 TEST_F(RecordFileTest, AddSingleRecord) {
@@ -219,7 +218,7 @@ TEST_F(RecordFileTest, ClearAllRecords) {
   EXPECT_EQ(0xff + 0xff, ri_->clear(ri_, 0));
 
   EXPECT_EQ(static_cast<size_t>(0), NumValidRecords());
-  EXPECT_NE(0, GetRecord(0, NULL));
+  EXPECT_NE(0, GetRecord(0, nullptr));
   EXPECT_GT(ri_->get_free_space(ri_), 0xff);
 }
 
