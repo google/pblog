@@ -21,6 +21,7 @@
 #include <vector>
 
 #include <gtest/gtest.h>
+#include <pblog/common.h>
 #include <pblog/file.h>
 #include <pblog/record.h>
 

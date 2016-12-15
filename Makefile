@@ -27,6 +27,8 @@ PBLOG_BUILD_SHARED = $(BUILD_SHARED)
 # Test enumeration
 PBLOG_TESTS_SRC = $(wildcard $(PBLOG_DIR)/test/*_test.cc)
 PBLOG_TESTS_HEADERS = $(PBLOG_HEADERS) $(wildcard $(PBLOG_DIR)/test/*.h)
+PBLOG_TESTS_COMMON_FILES = $(filter-out %_test.cc,$(wildcard $(PBLOG_DIR)/test/*.cc))
+PBLOG_TESTS_COMMON_OBJECTS = $(patsubst $(PBLOG_DIR)/test/%.cc,$(PBLOG_OUT)/test/%.o,$(PBLOG_TESTS_COMMON_FILES))
 PBLOG_TESTS = $(patsubst $(PBLOG_DIR)/test/%.cc,$(PBLOG_OUT)/%,$(PBLOG_TESTS_SRC))
 PBLOG_TESTS_RUN = $(patsubst %,%_run,$(PBLOG_TESTS))
 
@@ -45,10 +47,15 @@ all: all-real
 
 include mk/pblog.mk
 
+# Rule for building common test objects
+$(PBLOG_OUT)/test/%.o: $(PBLOG_DIR)/test/%.cc $(PBLOG_TESTS_HEADERS)
+	@$(PBLOG_MKDIR) -p $(PBLOG_OUT)/test
+	$(CXX) $(PBLOG_TESTS_CFLAGS) -c $< -o $@
+
 # Rule for building test cases
-$(PBLOG_OUT)/%_test: $(PBLOG_DIR)/test/%_test.cc $(PBLOG_TESTS_HEADERS) $(PBLOG_LIBRARIES)
+$(PBLOG_OUT)/%_test: $(PBLOG_DIR)/test/%_test.cc $(PBLOG_TESTS_COMMON_OBJECTS) $(PBLOG_TESTS_HEADERS) $(PBLOG_LIBRARIES)
 	@$(PBLOG_MKDIR) -p $(PBLOG_OUT)
-	$(CXX) $(PBLOG_TESTS_CFLAGS) $< -o $@ $(PBLOG_TESTS_LIBS)
+	$(CXX) $(PBLOG_TESTS_CFLAGS) $< -o $@ $(PBLOG_TESTS_COMMON_OBJECTS) $(PBLOG_TESTS_LIBS)
 
 # Rule for running test cases
 $(PBLOG_OUT)/%_run: $(PBLOG_OUT)/%
