@@ -1,5 +1,5 @@
-#ifndef PBLOG_TEST_COMMON_H
-#define PBLOG_TEST_COMMON_H
+#ifndef PBLOG_TEST_COMMON_HH
+#define PBLOG_TEST_COMMON_HH
 
 #include <cstdarg>
 #include <cstdio>

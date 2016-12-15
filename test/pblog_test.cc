@@ -23,7 +23,7 @@
 #include <pblog/pblog.h>
 #include <pblog/record.h>
 
-#include "common.h"
+#include "common.hh"
 
 namespace {
 
