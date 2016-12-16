@@ -8,7 +8,7 @@ source .travis-common.sh
 clang-tidy() {
   clang-tidy${CC:5} "$@" >tmp-tidy-results || true
   set +x
-  if [ -n "$(cat tmp-tidy-results)" ]; then
+  if grep -q ' \(warning\|error\):' tmp-tidy-results; then
     echo "########## $1 ##########" >> tidy-results
     cat tmp-tidy-results >> tidy-results
   fi
@@ -25,7 +25,7 @@ if [ "$LINT" = "1" ]; then
     clang-tidy "$file" -- -std=gnu++11 -I.pblog/include -I"$LOCAL_PREFIX"/include
   done
   set +x
-  if [ -n "$(cat tidy-results)" ]; then
+  if [ -s "tidy-results" ]; then
     cat tidy-results
     exit 1
   fi
