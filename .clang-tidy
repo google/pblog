@@ -1,4 +1,4 @@
 {
-  Checks: '*,-cppcoreguidelines-pro-type-vararg'
+  Checks: '*,-cppcoreguidelines-pro-type-vararg,-cppcoreguidelines-pro-type-const-cast'
   #WarningsAsErrors: '*'
 }

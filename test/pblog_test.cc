@@ -58,7 +58,8 @@ class PblogFileTest : public ::testing::Test {
 
     flash_ri_ =
         static_cast<struct record_intf *>(malloc(sizeof(struct record_intf)));
-    pblog_file_ops.priv = static_cast<void *>(&filename_[0]);
+    pblog_file_ops.priv = static_cast<void *>(
+        const_cast<char *>(filename_.c_str()));
     record_intf_init(flash_ri_,
                      static_cast<struct record_region *>(file_regions), 2,
                      &pblog_file_ops);

@@ -59,7 +59,8 @@ class RecordFileTest : public ::testing::Test {
     }
 
     ri_ = new struct record_intf;
-    pblog_file_ops.priv = static_cast<void *>(&filename_[0]);
+    pblog_file_ops.priv = static_cast<void *>(
+            const_cast<char *>(filename_.c_str()));
     ASSERT_EQ(0, record_intf_init(ri_, region_structs, regions.size(),
                                   &pblog_file_ops));
     delete[] region_structs;
