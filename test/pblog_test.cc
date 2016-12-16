@@ -56,12 +56,12 @@ class PblogFileTest : public ::testing::Test {
     file_regions[1].size = size1;
     file_regions[1].used_size = 0;
 
-    flash_ri_ = static_cast<struct record_intf *>(
-        malloc(sizeof(struct record_intf)));
+    flash_ri_ =
+        static_cast<struct record_intf *>(malloc(sizeof(struct record_intf)));
     pblog_file_ops.priv = static_cast<void *>(&filename_[0]);
-    record_intf_init(
-        flash_ri_, static_cast<struct record_region *>(file_regions),
-        2, &pblog_file_ops);
+    record_intf_init(flash_ri_,
+                     static_cast<struct record_region *>(file_regions), 2,
+                     &pblog_file_ops);
 
     mem_log_ = malloc(size0 + size1);
 
@@ -98,8 +98,7 @@ class PblogFileTest : public ::testing::Test {
 
 vector<pblog_Event *> *PblogFileTest::events;
 
-pblog_status collect_events_cb(int valid,
-                               const pblog_Event *event,
+pblog_status collect_events_cb(int valid, const pblog_Event *event,
                                void *priv) {  // NOLINT
   if (valid == 0) {
     return PBLOG_ERR_INVALID;
@@ -114,7 +113,8 @@ TEST_F(PblogFileTest, TotallyEmptyLog) {
   init_2regions(0, 0xff, 0x100, 0xff);
   pblog_Event event;
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   EXPECT_EQ(static_cast<size_t>(1), events->size());
 
   // Should log a clear event.
@@ -128,7 +128,8 @@ TEST_F(PblogFileTest, LogClearedSuccess) {
   EXPECT_EQ(0, pblog_->clear(pblog_));
 
   // Should be a single clear event.
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(static_cast<size_t>(1), events->size());
   EXPECT_EQ(pblog_TYPE_LOG_CLEARED, events->at(0)->type);
 }
@@ -154,7 +155,8 @@ TEST_F(PblogFileTest, LogAFewEvents) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(1 + num_events, events->size());
 }
 
@@ -172,7 +174,8 @@ TEST_F(PblogFileTest, LogSecondRegion) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(static_cast<size_t>(1 + num_events), events->size());
 }
 
@@ -194,7 +197,8 @@ TEST_F(PblogFileTest, LogFull) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(1 + num_events - 1, events->size());
 }
 
@@ -211,20 +215,23 @@ TEST_F(PblogFileTest, LogPersists) {
     event_free(&event);
   }
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(1 + num_events, events->size());
 
   clear_state();
   init_2regions(0, 0xff, 0x100, 0xff);
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(1 + num_events, events->size());
 
   clear_state();
   // Switch the order of the region offsets, should not make a difference.
   init_2regions(0x100, 0xff, 0, 0xff);
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(1 + num_events, events->size());
 
   // Clear the log.
@@ -233,7 +240,8 @@ TEST_F(PblogFileTest, LogPersists) {
   clear_state();
   init_2regions(0, 0xff, 0x100, 0xff);
 
-  EXPECT_EQ(0, pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
+  EXPECT_EQ(0,
+            pblog_->for_each_event(pblog_, collect_events_cb, &event, nullptr));
   ASSERT_EQ(static_cast<size_t>(1), events->size());
 }
 

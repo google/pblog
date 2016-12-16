@@ -181,7 +181,7 @@ static enum pblog_status pblog_for_each_event_internal(struct pblog *pblog,
   enum pblog_status status;
   pblog_Event *event = (pblog_Event *)malloc(sizeof(pblog_Event));
   if (event == NULL) {
-	return PBLOG_ERR_NO_SPACE;
+    return PBLOG_ERR_NO_SPACE;
   }
   event_init(event);
   status = pblog_for_each_event(pblog, callback, event, priv);

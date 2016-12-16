@@ -19,9 +19,9 @@ int pblog_printf(int severity, const char *format, ...) {
   }
 
   va_list args;
-  va_start(args, format);  // NOLINT
+  va_start(args, format);                    // NOLINT
   int ret = vfprintf(stderr, format, args);  // NOLINT
-  va_end(args);  // NOLINT
+  va_end(args);                              // NOLINT
 
   return ret;
 }
@@ -32,14 +32,14 @@ namespace pblog_test {
 
 std::string StringPrintf(const char *format, ...) {  // NOLINT
   va_list args;
-  va_start(args, format);  // NOLINT
+  va_start(args, format);                          // NOLINT
   int size = vsnprintf(nullptr, 0, format, args);  // NOLINT
-  va_end(args);  // NOLINT
+  va_end(args);                                    // NOLINT
 
   std::string ret(size + 1, '\0');
-  va_start(args, format);  // NOLINT
+  va_start(args, format);                      // NOLINT
   vsnprintf(&ret[0], size + 1, format, args);  // NOLINT
-  va_end(args);  // NOLINT
+  va_end(args);                                // NOLINT
 
   ret.resize(size);
   return ret;

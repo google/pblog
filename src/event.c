@@ -37,7 +37,7 @@ static bool string_encoder(pb_ostream_t *stream, const pb_field_t *field,
 }
 
 static bool string_decoder(pb_istream_t *stream,
-                           const pb_field_t *field, // NOLINT
+                           const pb_field_t *field,  // NOLINT
                            void **arg) {
   int strsize = stream->bytes_left;
   char *str = (char *)malloc(strsize + 1);

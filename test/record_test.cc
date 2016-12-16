@@ -149,10 +149,11 @@ TEST_F(RecordFileTest, InitWithGarbage) {
   for (size_t i = 0; i < garbage.size(); ++i) {
     garbage[i] = i;
   }
-  std::unique_ptr<FILE, int(*)(FILE *)> file(fopen(filename_.c_str(), "w"), fclose);
+  std::unique_ptr<FILE, int (*)(FILE *)> file(fopen(filename_.c_str(), "w"),
+                                              fclose);
   ASSERT_NE(nullptr, file);
-  ASSERT_EQ(garbage.size(),
-            fwrite(garbage.data(), sizeof(char), garbage.size(), file.get()));  // NOLINT
+  ASSERT_EQ(garbage.size(), fwrite(garbage.data(), sizeof(char),  // NOLINT
+                                   garbage.size(), file.get()));
 
   InitRegions({make_pair(0, 0xff), make_pair(0x100, 0xff)});
 

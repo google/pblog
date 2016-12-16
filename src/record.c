@@ -145,7 +145,7 @@ static int log_read_record(struct record_intf *ri, int offset, int *next_offset,
     offset -= region->used_size;
   }
   if (region == NULL) {
-	return PBLOG_ERR_INVALID;
+    return PBLOG_ERR_INVALID;
   }
   if (i >= meta->used_regions) {
     // Check for end of log (reading last record one past end).
@@ -153,8 +153,8 @@ static int log_read_record(struct record_intf *ri, int offset, int *next_offset,
     if (offset == 0 || offset == region->used_size) {
       *next_offset = 0;
       if (len) {
-		*len = 0;
-	  }
+        *len = 0;
+      }
       return PBLOG_SUCCESS;
     }
     return PBLOG_ERR_INVALID;
