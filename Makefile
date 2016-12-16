@@ -34,8 +34,8 @@ PBLOG_TESTS_RUN = $(patsubst %,%_run,$(PBLOG_TESTS))
 
 # Test Params
 PBLOG_TESTS_CFLAGS = $(CFLAGS) $(PBLOG_CFLAGS) -std=gnu++11 \
-					 -I$(PBLOG_INCLUDE) -I$(GTEST_INCDIR) \
-					 -Wl,-rpath $(PBLOG_OUT) -Wl,-rpath $(GTEST_LIBDIR)
+					 -I$(PBLOG_INCLUDE) -I$(GTEST_INCDIR)
+PBLOG_TESTS_CFLAGS_LINK = -Wl,-rpath $(PBLOG_OUT) -Wl,-rpath $(GTEST_LIBDIR)
 PBLOG_TESTS_LIBS = -L$(PBLOG_OUT) -lpblog -L$(GTEST_LIBDIR) -lgtest_main \
 				   -lgtest -pthread
 
@@ -55,7 +55,8 @@ $(PBLOG_OUT)/test/%.o: $(PBLOG_DIR)/test/%.cc $(PBLOG_TESTS_HEADERS)
 # Rule for building test cases
 $(PBLOG_OUT)/%_test: $(PBLOG_DIR)/test/%_test.cc $(PBLOG_TESTS_COMMON_OBJECTS) $(PBLOG_TESTS_HEADERS) $(PBLOG_LIBRARIES)
 	@$(PBLOG_MKDIR) -p $(PBLOG_OUT)
-	$(CXX) $(PBLOG_TESTS_CFLAGS) $< -o $@ $(PBLOG_TESTS_COMMON_OBJECTS) $(PBLOG_TESTS_LIBS)
+	$(CXX) $(PBLOG_TESTS_CFLAGS) $(PBLOG_TESTS_CFLAGS_LINK) $< -o $@ \
+		$(PBLOG_TESTS_COMMON_OBJECTS) $(PBLOG_TESTS_LIBS)
 
 # Rule for running test cases
 $(PBLOG_OUT)/%_run: $(PBLOG_OUT)/%

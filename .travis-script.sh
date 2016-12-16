@@ -17,8 +17,6 @@ clang-tidy() {
 
 if [ "$LINT" = "1" ]; then
   make "${MAKEFLAGS[@]}" NANOPB_DIR=../nanopb all
-  clang-tidy -dump-config
-  clang-tidy -explain-config
   touch tidy-results
   for file in $(find include src -name \*.c -or -name \*.h); do
     clang-tidy "$file" -- -std=gnu11 -I.pblog/include
